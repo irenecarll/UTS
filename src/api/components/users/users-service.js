@@ -8,13 +8,7 @@ const { hashPassword, passwordMatched } = require('../../../utils/password');
 
 async function getUsers({ search, sort } = {}) {
   try {
-    let users = await usersRepository.getUsers();
-
-    // Proses filter pencarian
-    if (search) {
-      // Lakukan filter berdasarkan pencarian pada email
-      users = users.filter(user => user.email.includes(search));
-    }
+    let users = await usersRepository.getUsers({ search }); // Pass the search parameter to the repository function
 
     // Proses pengurutan data
     if (sort) {
@@ -29,15 +23,11 @@ async function getUsers({ search, sort } = {}) {
     }
 
     // Menghasilkan hasil yang diformat
-    const results = [];
-    for (let i = 0; i < users.length; i += 1) {
-      const user = users[i];
-      results.push({
-        id: user.id,
-        name: user.name,
-        email: user.email,
-      });
-    }
+    const results = users.map(user => ({
+      id: user.id,
+      name: user.name,
+      email: user.email,
+    }));
 
     return results;
   } catch (error) {

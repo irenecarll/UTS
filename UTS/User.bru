@@ -5,7 +5,18 @@ meta {
 }
 
 get {
-  url: http://localhost:5000/api/users
+  url: http://localhost:5000/api/users?page_number=1&page_size=5&search=email:sim&sort=email:desc
   body: none
   auth: none
+}
+
+query {
+  page_number: 1
+  page_size: 5
+  search: email:sim
+  sort: email:desc
+}
+
+headers {
+  Authorization: JWT eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImFkbWluQGV4YW1wbGUuY29tIiwidXNlcklkIjoiNjYwY2NkNmNkNGQyMGU1MDA4YzA5OTRlIiwiaWF0IjoxNzE0NTM1NjEwLCJleHAiOjE3MTQ2MjIwMTB9.b62pHEq4IzN4BxYhT5L8n20Xchcn8dMJ23mOzlvzBAQ
 }

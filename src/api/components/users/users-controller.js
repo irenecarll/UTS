@@ -13,30 +13,14 @@ async function getUsers(request, response, next) {
     // Mendapatkan parameter dari query string
     const { page_number = 1, page_size = 5, search, sort } = request.query;
 
-    // Proses filter pencarian
-    let filteredUsers = await usersService.getUsers();
-    if (search) {
-      // Lakukan filter berdasarkan pencarian pada email
-      filteredUsers = filteredUsers.filter(user => user.email.includes(search));
-    }
-
-    // Proses pengurutan data
-    if (sort) {
-      const [sortField, sortOrder] = sort.split(':');
-      filteredUsers.sort((a, b) => {
-        if (sortOrder === 'asc') {
-          return a[sortField] < b[sortField] ? -1 : 1;
-        } else {
-          return a[sortField] > b[sortField] ? -1 : 1;
-        }
-      });
-    }
+    // Panggil getUsers dari service dan teruskan parameter search dan sort
+    const users = await usersService.getUsers({ search, sort });
 
     // Proses pagination
-    const totalCount = filteredUsers.length;
+    const totalCount = users.length;
     const totalPages = Math.ceil(totalCount / page_size);
     const startIndex = (page_number - 1) * page_size;
-    const usersOnPage = filteredUsers.slice(startIndex, startIndex + page_size);
+    const usersOnPage = users.slice(startIndex, startIndex + page_size);
 
     // Mengembalikan respons dengan data pagination
     return response.status(200).json({

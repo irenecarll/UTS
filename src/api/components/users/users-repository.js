@@ -2,7 +2,9 @@ const { User } = require('../../../models');
 
 /**
  * Get a list of users
- * @returns {Promise}
+ * @param {object} options - Options object containing search parameter
+ * @param {string} options.search - Search query
+ * @returns {Promise} - Promise resolving to an array of user objects
  */
 async function getUsers({ search } = {}) {
   let query = {};
