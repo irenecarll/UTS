@@ -4,15 +4,17 @@ const { User } = require('../../../models');
  * Get a list of users
  * @returns {Promise}
  */
-async function getUsers() {
-  return User.find({});
+async function getUsers({ search } = {}) {
+  let query = {};
+
+  // Proses filter pencarian
+  if (search) {
+    query = { email: { $regex: search, $options: 'i' } }; // Menggunakan regular expression untuk pencarian case-insensitive
+  }
+
+  return User.find(query);
 }
 
-/**
- * Get user detail
- * @param {string} id - User ID
- * @returns {Promise}
- */
 async function getUser(id) {
   return User.findById(id);
 }

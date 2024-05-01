@@ -5,20 +5,44 @@ const { hashPassword, passwordMatched } = require('../../../utils/password');
  * Get list of users
  * @returns {Array}
  */
-async function getUsers() {
-  const users = await usersRepository.getUsers();
 
-  const results = [];
-  for (let i = 0; i < users.length; i += 1) {
-    const user = users[i];
-    results.push({
-      id: user.id,
-      name: user.name,
-      email: user.email,
-    });
+async function getUsers({ search, sort } = {}) {
+  try {
+    let users = await usersRepository.getUsers();
+
+    // Proses filter pencarian
+    if (search) {
+      // Lakukan filter berdasarkan pencarian pada email
+      users = users.filter(user => user.email.includes(search));
+    }
+
+    // Proses pengurutan data
+    if (sort) {
+      const [sortField, sortOrder] = sort.split(':');
+      users.sort((a, b) => {
+        if (sortOrder === 'asc') {
+          return a[sortField] < b[sortField] ? -1 : 1;
+        } else {
+          return a[sortField] > b[sortField] ? -1 : 1;
+        }
+      });
+    }
+
+    // Menghasilkan hasil yang diformat
+    const results = [];
+    for (let i = 0; i < users.length; i += 1) {
+      const user = users[i];
+      results.push({
+        id: user.id,
+        name: user.name,
+        email: user.email,
+      });
+    }
+
+    return results;
+  } catch (error) {
+    throw new Error('Failed to get users: ' + error.message);
   }
-
-  return results;
 }
 
 /**

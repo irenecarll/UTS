@@ -10,8 +10,44 @@ const { errorResponder, errorTypes } = require('../../../core/errors');
  */
 async function getUsers(request, response, next) {
   try {
-    const users = await usersService.getUsers();
-    return response.status(200).json(users);
+    // Mendapatkan parameter dari query string
+    const { page_number = 1, page_size = 5, search, sort } = request.query;
+
+    // Proses filter pencarian
+    let filteredUsers = await usersService.getUsers();
+    if (search) {
+      // Lakukan filter berdasarkan pencarian pada email
+      filteredUsers = filteredUsers.filter(user => user.email.includes(search));
+    }
+
+    // Proses pengurutan data
+    if (sort) {
+      const [sortField, sortOrder] = sort.split(':');
+      filteredUsers.sort((a, b) => {
+        if (sortOrder === 'asc') {
+          return a[sortField] < b[sortField] ? -1 : 1;
+        } else {
+          return a[sortField] > b[sortField] ? -1 : 1;
+        }
+      });
+    }
+
+    // Proses pagination
+    const totalCount = filteredUsers.length;
+    const totalPages = Math.ceil(totalCount / page_size);
+    const startIndex = (page_number - 1) * page_size;
+    const usersOnPage = filteredUsers.slice(startIndex, startIndex + page_size);
+
+    // Mengembalikan respons dengan data pagination
+    return response.status(200).json({
+      page_number: parseInt(page_number),
+      page_size: parseInt(page_size),
+      count: usersOnPage.length,
+      total_pages: totalPages,
+      has_previous_page: page_number > 1,
+      has_next_page: page_number < totalPages,
+      data: usersOnPage
+    });
   } catch (error) {
     return next(error);
   }
